@@ -1,0 +1,252 @@
+Colas(8)
+
+Estatica(arreglo)
+    Circular (CEC)
+
+Dinamicas(malloc)
+    Simplemente ligada (CDSL) Codigo hecho en clase
+        Con prioridad (CDSLP)
+        Circular (CDSLC)
+    Doblemente ligadas (CDDL)
+        Circular (CDDLC)
+        Con encabezado (CDDLE)
+            Bicola (CDDLEB)
+
+Pilas(2+1)
+
+Listas(4)
+
+
+
+Codigos de cola dinamica Simplemente ligada
+
+Codigo main.c
+#include <stdio.h>
+#include "util.h"
+#include "cola.h"
+
+int main(void)
+{
+
+    int opcion, ID;
+    struct nodo *cola = NULL, *nodo = NULL;
+
+    do
+    {
+        opcion = menu();
+
+        // Evaluar la opcion:
+
+        /*
+        1. Agregar
+        2. Quitar
+        3. Imprimir
+        4. Salir,    Vaciar/Salir
+        */
+
+        // Imprimir opcion: Agregar la opcion
+        // si pone una opcion diferente mayor que 4 poner opcion invalida
+
+        switch (opcion)
+        {
+        case 1:
+            printf("\n--- Insertar Nodo ---\n");
+            scanf("%d", &ID);
+
+            nodo = crear_nodo(ID);
+            if (nodo == NULL)
+            {
+                printf("No se pudo reservar memoria para crear el nodo. \n");
+            }
+            else
+            {
+                insertar_nodo(&cola, nodo);
+                printf("Nodo con ID %d ha sido agregado. \n", ID); // Imprime el nodo agregado
+            }
+
+            break;
+        case 2:
+            printf("\n--- Extraer Nodo ---\n");
+            nodo = extraer_nodo(&cola);
+            if (nodo == NULL)
+            {
+                printf("La cola esta vacia. No hay nodos para extraer. \n");
+            }
+            else
+            {
+                printf("Nodo con ID %d extraido. \n", nodo->ID); // Imprime el nodo extraido
+            }
+            eliminar_nodo(nodo);
+            break;
+        case 3:
+            printf("\n--- Imprimir Cola ---\n");
+            imprimir_cola(cola);
+            break;
+        case 4: // Funcion de vaciar cola a la hora de salir
+            printf("\nVaciando la cola y saliendo...\n");
+            vaciar_cola(&cola); // Llama a la funcion vaciar_cola de cola.c
+            printf("Saliendo...\n");
+            break;
+        default:
+            printf("Opcion no valida. Intente de nuevo.\n");
+        }
+
+    } while (opcion != 4); // Cambiar el valor de opciones
+
+    return 0;
+}
+
+
+Codigo cola.c
+#include "cola.h"
+#include "util.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+struct nodo *cola = NULL; // Definimos una cola global
+
+// Funcion para crear nodo
+struct nodo *crear_nodo(int ID)
+{
+    struct nodo *nodoap;
+    nodoap = (struct nodo *)malloc(sizeof(struct nodo));
+    if (nodoap != NULL)
+    {
+        nodoap->ID = ID;
+        nodoap->siguiente = NULL;
+    }
+
+    return nodoap;
+}
+
+// Funcion para eliminar el nodo de la cola
+void eliminar_nodo(struct nodo *nodo)
+{
+    free(nodo);
+}
+
+// Funcion para insertar nodo a la cola
+void insertar_nodo(struct nodo **cola, struct nodo *nodo)
+{
+    struct nodo *actual;
+    if (*cola == NULL)
+    {
+        *cola = nodo;
+    }
+    else
+    {
+        actual = *cola;
+        while (actual->siguiente != NULL)
+        {
+            actual = actual->siguiente;
+        }
+        actual->siguiente = nodo;
+    }
+}
+
+// Funcion para extraer nodo de la cola
+struct nodo *extraer_nodo(struct nodo **cola)
+{
+    struct nodo *nodo;
+    if (*cola == NULL)
+        return NULL;
+
+    nodo = *cola;
+    *cola = (*cola)->siguiente;
+    nodo->siguiente = NULL;
+    return nodo;
+}
+
+// Funcion para imprimir cola
+void imprimir_cola(struct nodo *cola)
+{
+    if (cola == NULL)
+    {
+        printf("->NULL. \n La cola esta vacia");
+    }
+    else
+    {
+        do
+        {
+            printf(" -> %d", cola->ID);
+            cola = cola->siguiente;
+        } while (cola != NULL);
+        printf(" -> NULL \n");
+    }
+}
+
+// Funcion para vaciar cola
+void vaciar_cola(struct nodo **cola)
+{
+    struct nodo *temp;
+    while (*cola != NULL)
+    {
+        temp = extraer_nodo(cola);
+        printf("Nodo con ID %d ha sido eleminado correctamente. \n", temp->ID);
+        eliminar_nodo(temp);
+    }
+    printf("Cola vaciada correctamente. \n");
+}
+
+Codigo cola.h
+#ifndef _Cola_H_
+
+#define _Cola_H_
+
+// Prototipos
+
+struct nodo
+{
+    int ID;
+    struct nodo *siguiente;
+};
+
+struct nodo *crear_nodo(int); // Reservar espacio de memoria para una instancia de una estructura de tipo struct nodo
+
+void eliminar_nodo(struct nodo *); // Liberar la memoria de la direccion indicada
+
+void insertar_nodo(struct nodo **, struct nodo *); // Agregar o insertar el nuevo nodo al final de la estructura
+
+struct nodo *extraer_nodo(struct nodo **); // Extraer el primer elemento de la estructura
+
+void imprimir_cola(struct nodo *); // Imprime la cola
+
+void vaciar_cola(struct nodo **cola); // Vacia la cola y termina el programa
+
+#endif
+
+Codigo util.c
+#include "util.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+int menu(void)
+{
+
+    int opcion;
+
+    // Menu
+    printf("\n============================\n");
+    printf("         MENU PRINCIPAL     \n");
+    printf("============================\n");
+    printf(" 1. Agregar nodo            \n");
+    printf(" 2. Quitar nodo             \n");
+    printf(" 3. Imprimir cola           \n");
+    printf(" 4. Salir                   \n");
+    printf("============================\n");
+    printf("Seleccione una opcion: ");
+    scanf("%d", &opcion);
+
+    return opcion;
+}
+
+Codigo util.h
+#ifndef _COLA_H_
+
+#define _COLA_H_
+
+// Prototipos
+
+int menu(void); // Funcion que va a imprimir el menu y va a devolver la opcion que elijamos
+
+#endif

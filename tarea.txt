@@ -1,0 +1,164 @@
+Tarea 
+
+1. Agregar en el codigo cual nodo fue extraido
+2. Funcion vaciar_cola en la opcion 4 al momento de salir
+3. identar codigo
+4. hacer visualmente atractivas las salidas
+
+5. Estudiar y tratar de entender el codigo
+
+CODIGOS:main.c , cola.c , cola.h
+
+Codigo principal main.c
+
+#include <stdio.h>
+#include "util.h"
+#include "cola.h"
+
+int main(void){
+
+    int opcion, ID;
+    struct nodo *cola=NULL, *nodo=NULL;
+
+    do {
+        opcion = menu();
+
+        //Evaluar la opcion:
+        
+        /*
+        1. Agregar
+        2. Quitar
+        3. Imprimir
+        4. Salir,    Vaciar/Salir
+        */
+
+        //Imprimir opcion: Agregar la opcion
+        //si pone una opcion diferente mayor que 4 poner opcion invalida
+
+        switch (opcion) {
+            case 1:
+                printf("Insertar su ID: \n");
+                scanf("%d", &ID);
+
+                nodo = crear_nodo(ID);
+                if (nodo==NULL){
+                    printf("No se pudo reservar memoria para crear el nodo");
+
+                }else{
+                insertar_nodo(&cola, nodo);
+                }
+
+                break;
+            case 2://Cual nodo fue extraido implementarlo
+                nodo = extraer_nodo(&cola);
+                printf("");
+                eliminar_nodo(nodo);
+                break;
+            case 3:
+                imprimir_cola(cola);
+                break;
+            case 4: //Funcion de vaciar cola a la hora de salir 
+                printf("Saliendo...\n");
+                break;
+            default:
+                printf("Opcion no valida. Intente de nuevo.\n");
+        }
+
+    }while(opcion != 4);//Cambiar el valor de opciones
+
+    return 0;
+}
+
+
+
+
+Codigo cola.c
+
+#include "cola.h"
+#include "util.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+struct nodo *cola = NULL; // Definimos una cola global
+
+struct nodo *crear_nodo(int ID){
+    struct nodo *nodoap;
+    nodoap=(struct nodo *)malloc(sizeof(struct nodo));
+    if(nodoap != NULL){
+        nodoap->ID = ID;
+        nodoap->siguiente = NULL;
+    }
+    
+    return nodoap;
+}
+
+void eliminar_nodo(struct nodo *nodo){
+    free(nodo);
+
+}
+
+void insertar_nodo(struct nodo **cola, struct nodo *nodo){
+    struct nodo *actual;
+    if(*cola == NULL){
+        *cola = nodo;
+
+    }else{
+        actual =*cola;
+        while(actual->siguiente != NULL){
+            actual = actual->siguiente;
+        }
+        actual ->siguiente = nodo;
+    }
+}
+
+struct nodo *extraer_nodo(struct nodo **cola){
+    struct nodo *nodo;
+    if (*cola == NULL)
+    return NULL;
+
+    nodo = *cola; 
+    *cola = (*cola) -> siguiente;
+    nodo -> siguiente = NULL;
+    return nodo;
+}
+
+
+void imprimir_cola(struct nodo *cola){
+    if (cola == NULL){
+        printf("->NULL. \n La cola esta vacia");
+    }else{
+        do {
+        printf("-> %d", cola->ID);
+        cola= cola->siguiente;
+        }while(cola != NULL);
+        printf("->NULL \n");
+    }
+}
+
+
+
+Codigo cola.h
+
+
+#ifndef _Cola_H_
+
+#define _Cola_H_
+
+//Prototipos
+
+struct nodo{
+    int ID;
+    struct nodo *siguiente;
+};
+
+struct nodo *crear_nodo(int); //Reservar espacio de memoria para una instancia de una estructura de tipo struct nodo
+
+void eliminar_nodo(struct nodo *); //Liberar la memoria de la direccion indicada
+
+void insertar_nodo(struct nodo **, struct nodo *); //Agregar o insertar el nuevo nodo al final de la estructura
+
+struct nodo *extraer_nodo(struct nodo **); //Extraer el primer elemento de la estrcutura
+
+void imprimir_cola(struct nodo *);
+
+#endif
